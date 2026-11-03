@@ -1,0 +1,13 @@
+{
+  "name": "counseldesk",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": ["backend"],
+  "engines": { "node": ">=22.0.0" },
+  "scripts": {
+    "test": "npm run test --workspace backend",
+    "schema:check": "npm run schema:check --workspace backend",
+    "db:init": "npm run db:init --workspace backend"
+  }
+}
