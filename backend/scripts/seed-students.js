@@ -12,7 +12,11 @@ try {
     write: { type: 'boolean', default: false },
   } });
   const students = await generateStudents({ count: Number(values.count), academicYear: Number(values.year) });
-  console.log(`Generated and validated ${students.length} synthetic students.`);
+  const outputDirectory = new URL('../seeds/generated/', import.meta.url);
+  const outputFile = new URL('students.json', outputDirectory);
+  await mkdir(outputDirectory, { recursive: true });
+  await writeFile(outputFile, JSON.stringify(students, null, 2) + '\n', 'utf8');
+  console.log(`Generated and validated ${students.length} synthetic students in backend/seeds/generated/students.json`);
 } catch {
   console.error('Student seed failed.');
   process.exitCode = 1;
