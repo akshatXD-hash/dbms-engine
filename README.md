@@ -66,6 +66,12 @@ Generated files are ignored by Git. Choose any count from 200 to 300:
 npm run seed:students -- --count 300 --year 2026
 ```
 
+Records have distinct names, application numbers, `.test` emails and ranks,
+plausible birth dates, and illustrative OPEN/OBC/SC/ST/EWS categories. The default
+batch has 200 verified, 25 pending and 25 rejected students. Verification states
+are distributed across all categories; the labels are not an official quota policy.
+Before allocation, configure RuleSets for these categories and the DEMO_LOCAL group.
+
 ## Connecting later
 
 No database credentials are needed for phase 1 checks. For the database integration
