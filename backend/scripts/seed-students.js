@@ -26,8 +26,15 @@ try {
   } else {
     console.log('File-only run. Use --write to insert these students into the configured database.');
   }
-} catch {
-  console.error('Student seed failed.');
+} catch (error) {
+  if (error instanceof RangeError || error.code?.startsWith?.('ERR_PARSE_ARGS')) {
+    console.error(error.message);
+  } else if (error.code === 11000) {
+    console.error('Seed rolled back: an email or rank conflicts with an existing student. No student records were changed.');
+  } else {
+    // Do not print driver errors, connection strings or student password hashes.
+    console.error('Student seed failed. Check local file access, schema validity and, for --write, database configuration and permissions.');
+  }
   process.exitCode = 1;
 } finally {
   await disconnectDB();
