@@ -8,5 +8,8 @@
     "schema:check": "node scripts/check-schema.js",
     "db:init": "node --env-file=.env scripts/init-db.js"
   },
-  "dependencies": { "mongoose": "^9.0.0" }
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "mongoose": "^9.0.0"
+  }
 }
