@@ -50,6 +50,22 @@ requirements for configurable reservation rules, unallocated outcomes and histor
 - [Schema dictionary, relationships and constraints](docs/schema.md)
 - [Implementation phases and acceptance checks](docs/phases.md)
 
+## Synthetic student seed
+
+Generate **250 synthetic students** matching the Student schema:
+
+```sh
+npm run seed:students
+```
+
+The file is written to `backend/seeds/generated/students.json` after every record
+passes model validation. This default command does not connect to MongoDB.
+Generated files are ignored by Git. Choose any count from 200 to 300:
+
+```sh
+npm run seed:students -- --count 300 --year 2026
+```
+
 ## Connecting later
 
 No database credentials are needed for phase 1 checks. For the database integration
