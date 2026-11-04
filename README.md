@@ -74,6 +74,21 @@ Before allocation, configure RuleSets for these categories and the DEMO_LOCAL gr
 Each student has an independently salted [bcrypt hash](https://github.com/dcodeIO/bcrypt.js)
 of a random, discarded password. These are not usable demo login accounts.
 
+To generate and **insert** students into the database configured in `backend/.env`:
+
+```sh
+npm run seed:students -- --write
+```
+
+This explicit write mode creates the Student collection/indexes and inserts missing
+records in a transaction. Existing year/application-number matches are left
+unchanged, including their passwords and timestamps. Conflicting ranks/emails
+roll back the student inserts; collection/index creation occurs before the
+transaction. The default ranks are 1–250, so use a dedicated development database.
+Reducing the count on a later run does not delete previously inserted students.
+Every invocation regenerates the local file; on repeat writes, its new hashes
+are deliberately not applied to existing accounts.
+
 ## Connecting later
 
 No database credentials are needed for phase 1 checks. For the database integration
