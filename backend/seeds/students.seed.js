@@ -24,3 +24,31 @@ export function validateSeedOptions({ count = 250, academicYear = 2026 } = {}) {
   }
   return { count, academicYear };
 }
+
+export async function generateStudents(options = {}) {
+  const { count, academicYear } = validateSeedOptions(options);
+  const students = [];
+  for (let index = 0; index < count; index++) {
+    const number = String(index + 1).padStart(4, '0');
+    const verificationBucket = Math.floor(index / seedCategories.length) % 10;
+    const verificationStatus = verificationBucket < 8 ? 'VERIFIED' : verificationBucket === 8 ? 'PENDING' : 'REJECTED';
+    const student = {
+      applicationNumber: `SYNTH${academicYear}-${number}`,
+      academicYear,
+      name: `${firstNames[index % firstNames.length]} ${lastNames[Math.floor(index / firstNames.length)]}`,
+      dateOfBirth: new Date(Date.UTC(academicYear - 18 - (index % 3), index % 12, (index % 28) + 1)),
+      email: `student.${academicYear}.${number}@counseldesk.example.test`,
+      // Each account gets a distinct random password and bcrypt salt. Passwords
+      // are discarded: these are allocation-test records, not shared demo logins.
+      passwordHash: await hash(randomBytes(24).toString('base64url'), 10),
+      rank: index + 1,
+      category: seedCategories[index % seedCategories.length],
+      eligibilityGroups: verificationStatus === 'VERIFIED' ? ['DEMO_LOCAL'] : [],
+      verificationStatus,
+      status: verificationStatus === 'VERIFIED' ? 'ELIGIBLE' : 'REGISTERED',
+    };
+    await new Student(student).validate();
+    students.push(student);
+  }
+  return students;
+}
