@@ -52,3 +52,24 @@ export async function generateStudents(options = {}) {
   }
   return students;
 }
+
+export async function insertStudents(students) {
+  // Validate before opening a write transaction. This function uses the caller's
+  // connection; importing the generator never opens a database connection.
+  for (const student of students) await new Student(student).validate();
+  await Student.createCollection();
+  await Student.createIndexes();
+  const now = new Date();
+  return Student.db.transaction(async session => {
+    const result = await Student.bulkWrite(students.map(student => ({
+      updateOne: {
+        filter: { academicYear: student.academicYear, applicationNumber: student.applicationNumber },
+        update: { $setOnInsert: { ...student, createdAt: now, updatedAt: now } },
+        upsert: true,
+        // Avoid changing an existing student's updatedAt on a repeat run.
+        timestamps: false,
+      },
+    })), { session, ordered: true });
+    return { inserted: result.upsertedCount, existing: result.matchedCount };
+  });
+}
