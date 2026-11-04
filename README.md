@@ -71,6 +71,8 @@ plausible birth dates, and illustrative OPEN/OBC/SC/ST/EWS categories. The defau
 batch has 200 verified, 25 pending and 25 rejected students. Verification states
 are distributed across all categories; the labels are not an official quota policy.
 Before allocation, configure RuleSets for these categories and the DEMO_LOCAL group.
+Each student has an independently salted [bcrypt hash](https://github.com/dcodeIO/bcrypt.js)
+of a random, discarded password. These are not usable demo login accounts.
 
 ## Connecting later
 
