@@ -30,6 +30,7 @@ backend/
   routes/          Reserved for API routes
   services/        Reserved for transaction and business-rule services
   fixtures/        Synthetic linked sample data
+  seeds/           Student generator and local generated dataset
   scripts/         Offline validation and explicit database initialization
   tests/           Offline validation and index-declaration tests
 frontend/          Portal phase notes
