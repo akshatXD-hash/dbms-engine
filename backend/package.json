@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node --test tests/*.test.js",
     "schema:check": "node scripts/check-schema.js",
-    "db:init": "node --env-file=.env scripts/init-db.js"
+    "db:init": "node --env-file=.env scripts/init-db.js",
+    "seed:students": "node scripts/seed-students.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
