@@ -17,3 +17,26 @@ test('rejects years outside the schema or producing future birth dates', () => {
     assert.throws(() => validateSeedOptions({ academicYear }), RangeError);
   }
 });
+
+test('generates a valid diverse batch of 250 uniquely identified students offline', async () => {
+  const students = await generateStudents();
+  assert.equal(students.length, 250);
+  for (const field of ['applicationNumber', 'email', 'rank', 'name', 'passwordHash']) {
+    assert.equal(new Set(students.map(student => student[field])).size, 250, `Duplicate ${field}`);
+  }
+  assert.equal(students[0].applicationNumber, 'SYNTH2026-0001');
+  assert.equal(students[249].applicationNumber, 'SYNTH2026-0250');
+  assert.deepEqual([...new Set(students.map(student => student.category))], seedCategories);
+  assert.deepEqual(Object.fromEntries(['VERIFIED', 'PENDING', 'REJECTED'].map(status => [
+    status, students.filter(student => student.verificationStatus === status).length,
+  ])), { VERIFIED: 200, PENDING: 25, REJECTED: 25 });
+  for (const student of students) {
+    assert.ok(student.email.endsWith('@counseldesk.example.test'));
+    assert.ok(student.dateOfBirth < new Date());
+    assert.equal(getRounds(student.passwordHash), 10);
+    assert.equal(student.password, undefined);
+    assert.equal(student.status, student.verificationStatus === 'VERIFIED' ? 'ELIGIBLE' : 'REGISTERED');
+    await new Student(student).validate();
+  }
+  assert.equal(Student.db.readyState, 0);
+});
