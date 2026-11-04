@@ -17,6 +17,15 @@ try {
   await mkdir(outputDirectory, { recursive: true });
   await writeFile(outputFile, JSON.stringify(students, null, 2) + '\n', 'utf8');
   console.log(`Generated and validated ${students.length} synthetic students in backend/seeds/generated/students.json`);
+  if (values.write) {
+    const envFile = new URL('../.env', import.meta.url);
+    if (existsSync(envFile)) loadEnvFile(envFile);
+    await connectDB();
+    const result = await insertStudents(students);
+    console.log(`Database seed complete: ${result.inserted} inserted; ${result.existing} already present.`);
+  } else {
+    console.log('File-only run. Use --write to insert these students into the configured database.');
+  }
 } catch {
   console.error('Student seed failed.');
   process.exitCode = 1;
