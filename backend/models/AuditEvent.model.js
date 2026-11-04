@@ -18,5 +18,4 @@ schema.pre('validate', function () {
 schema.index({ student: 1, occurredAt: -1 });
 schema.index({ round: 1, occurredAt: -1 });
 schema.index({ requestId: 1 });
-// Append-only access control is a service/database-role responsibility in phase 2.
 export default compile('AuditEvent', schema, 'audit_events');

@@ -1,5 +1,3 @@
-// Database-level protection also covers raw $inc updates that bypass Mongoose
-// document validation. It does not replace the multi-document transaction.
 export const seatMatrixValidator = {
   $and: [
     { $jsonSchema: {

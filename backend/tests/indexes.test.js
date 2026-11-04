@@ -32,5 +32,3 @@ test('scopes programme codes to colleges and rule versions to years', () => {
   assert.ok(uniqueIndex(models.RuleSet, { academicYear: 1, version: 1 }));
   assert.ok(uniqueIndex(models.Round, { academicYear: 1, roundNumber: 1 }));
 });
-// These verify index declarations only. Actual E11000/concurrency behaviour must
-// be exercised against a replica set in phase 2, after db:init creates indexes.

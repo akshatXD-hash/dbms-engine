@@ -15,7 +15,6 @@ schema.pre('validate', function () {
   }
 });
 schema.index({ student: 1, round: 1 }, { unique: true });
-// Released/upgraded history remains; only one seat can be held across all rounds.
 schema.index({ student: 1, academicYear: 1 }, {
   unique: true, name: 'one_held_seat_per_student_year',
   partialFilterExpression: { status: { $in: HOLDING_STATUSES } },

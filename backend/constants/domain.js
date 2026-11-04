@@ -1,4 +1,3 @@
-// Workflow values are application states; reservation categories remain data.
 export const STUDENT_STATUSES = ['REGISTERED', 'ELIGIBLE', 'ALLOTTED', 'ACCEPTED', 'WITHDRAWN'];
 export const VERIFICATION_STATUSES = ['PENDING', 'VERIFIED', 'REJECTED'];
 export const ACCOUNT_STATUSES = ['ACTIVE', 'SUSPENDED'];

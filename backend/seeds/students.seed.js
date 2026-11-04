@@ -8,7 +8,6 @@ const firstNames = [
   'Shaurya', 'Shreya', 'Tanay', 'Tara', 'Vihaan', 'Vidya', 'Yash', 'Zoya', 'Aditya', 'Avni',
 ];
 const lastNames = ['Sharma', 'Patel', 'Rao', 'Naik', 'Iyer', 'Shah', 'Reddy', 'Joshi', 'Verma', 'Nair'];
-// Illustrative categories only; configure matching RuleSets before allocation.
 export const seedCategories = ['OPEN', 'OBC', 'SC', 'ST', 'EWS'];
 
 export function validateSeedOptions({ count = 250, academicYear = 2026 } = {}) {
@@ -18,7 +17,6 @@ export function validateSeedOptions({ count = 250, academicYear = 2026 } = {}) {
   if (!Number.isInteger(academicYear) || academicYear < 2000 || academicYear > 2200) {
     throw new RangeError('Academic year must be an integer from 2000 to 2200');
   }
-  // A seed birth date must also satisfy the model's past-date requirement.
   if (academicYear - 18 >= new Date().getUTCFullYear()) {
     throw new RangeError('Academic year would generate future birth dates');
   }
@@ -38,8 +36,6 @@ export async function generateStudents(options = {}) {
       name: `${firstNames[index % firstNames.length]} ${lastNames[Math.floor(index / firstNames.length)]}`,
       dateOfBirth: new Date(Date.UTC(academicYear - 18 - (index % 3), index % 12, (index % 28) + 1)),
       email: `student.${academicYear}.${number}@counseldesk.example.test`,
-      // Each account gets a distinct random password and bcrypt salt. Passwords
-      // are discarded: these are allocation-test records, not shared demo logins.
       passwordHash: await hash(randomBytes(24).toString('base64url'), 10),
       rank: index + 1,
       category: seedCategories[index % seedCategories.length],
@@ -54,8 +50,6 @@ export async function generateStudents(options = {}) {
 }
 
 export async function insertStudents(students) {
-  // Validate before opening a write transaction. This function uses the caller's
-  // connection; importing the generator never opens a database connection.
   for (const student of students) await new Student(student).validate();
   await Student.createCollection();
   await Student.createIndexes();
@@ -66,7 +60,6 @@ export async function insertStudents(students) {
         filter: { academicYear: student.academicYear, applicationNumber: student.applicationNumber },
         update: { $setOnInsert: { ...student, createdAt: now, updatedAt: now } },
         upsert: true,
-        // Avoid changing an existing student's updatedAt on a repeat run.
         timestamps: false,
       },
     })), { session, ordered: true });

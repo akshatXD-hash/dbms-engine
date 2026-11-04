@@ -11,7 +11,6 @@ const poolRule = new Schema({
 }, { _id: false, strict: 'throw' });
 const schema = new Schema({
   academicYear: year(), version: integer(1), name: text(), createdBy: reference('Admin'),
-  // Array order is reservation precedence; never sort this array alphabetically.
   seatCategories: { type: [poolRule], required: true, validate: {
     validator: values => values.length > 0 && uniqueValues(values.map(v => v.category)),
     message: 'Seat categories must be nonempty and unique in precedence order',

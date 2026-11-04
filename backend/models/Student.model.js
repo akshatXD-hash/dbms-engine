@@ -20,7 +20,6 @@ const schema = new Schema({
 }, options);
 schema.index({ academicYear: 1, applicationNumber: 1 }, { unique: true });
 schema.index({ academicYear: 1, email: 1 }, { unique: true });
-// The supplied engine sheet rejects duplicate ranks. Tied ranks require an explicit future policy.
 schema.index({ academicYear: 1, rank: 1 }, { unique: true });
 schema.index({ academicYear: 1, status: 1, rank: 1 });
 export default compile('Student', schema, 'students');

@@ -32,7 +32,6 @@ try {
   } else if (error.code === 11000) {
     console.error('Seed rolled back: an email or rank conflicts with an existing student. No student records were changed.');
   } else {
-    // Do not print driver errors, connection strings or student password hashes.
     console.error('Student seed failed. Check local file access, schema validity and, for --write, database configuration and permissions.');
   }
   process.exitCode = 1;

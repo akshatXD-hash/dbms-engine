@@ -15,7 +15,6 @@ export async function connectDB(env = process.env) {
     return mongoose.connection;
   } catch {
     await mongoose.disconnect();
-    // Driver errors can contain the URI/credentials. Never echo them to the CLI.
     throw new Error('MongoDB connection failed. Check credentials, access, and replica-set/Atlas configuration.');
   }
 }

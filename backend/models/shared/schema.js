@@ -4,7 +4,6 @@ export const options = {
   timestamps: true,
   strict: 'throw',
   optimisticConcurrency: true,
-  // Explicit db:init creates indexes before any future writer starts.
   autoIndex: false,
   autoCreate: false,
   bufferCommands: false,
@@ -27,7 +26,6 @@ export const integer = (min = 0, max = Number.MAX_SAFE_INTEGER) => ({
 export const year = () => integer(2000, 2200);
 export const reference = (ref, required = true) => ({ type: mongoose.Schema.Types.ObjectId, ref, required });
 export const state = (values, defaultValue) => ({ type: String, enum: values, required: true, ...(defaultValue === undefined ? {} : { default: defaultValue }) });
-// The authentication phase will hash passwords. Accept only supported encoded hashes.
 export const passwordHash = () => ({
   type: String, required: true, select: false,
   match: /^(?:\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}|\$argon2id\$v=19\$m=\d+,t=\d+,p=\d+\$[A-Za-z0-9+/]+\$[A-Za-z0-9+/]+)$/,

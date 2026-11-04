@@ -17,7 +17,6 @@ try {
         validationLevel: 'strict', validationAction: 'error',
       });
     }
-    // Add declared indexes. Never drop existing indexes or erase records.
     await Model.createIndexes();
     console.log(`Initialized ${name}`);
   }

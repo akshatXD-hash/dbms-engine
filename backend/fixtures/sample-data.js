@@ -1,7 +1,5 @@
 import { Types } from 'mongoose';
 
-// Synthetic demonstration data only. This fixture never connects or inserts.
-// Hash is a syntactically valid fixture placeholder, not a usable account password.
 export const fixtureHash = '$2b$12$' + 'A'.repeat(53);
 export function sampleData() {
   const id = () => new Types.ObjectId();
