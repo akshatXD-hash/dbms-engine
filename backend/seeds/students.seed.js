@@ -1,6 +1,8 @@
 import { randomBytes } from 'node:crypto';
 import { hash } from 'bcryptjs';
 import Student from '../models/Student.model.js';
+import { Round, CounsellingCycle } from '../models/index.js';
+import { createContext, requireCondition, requireUnopenedYear } from '../services/core.js';
 
 const firstNames = [
   'Aarav', 'Aditi', 'Arjun', 'Ananya', 'Dev', 'Diya', 'Ishaan', 'Isha', 'Kabir', 'Kavya',
@@ -50,11 +52,18 @@ export async function generateStudents(options = {}) {
 }
 
 export async function insertStudents(students) {
+  requireCondition(Array.isArray(students) && students.length > 0, 'INVALID_SEED', 'Provide a nonempty student dataset', 400);
+  const academicYear = students[0].academicYear;
+  requireCondition(students.every(student => student.academicYear === academicYear), 'INVALID_SEED', 'Seed one academic year at a time', 400);
   for (const student of students) await new Student(student).validate();
   await Student.createCollection();
   await Student.createIndexes();
+  await Round.createCollection();
+  await CounsellingCycle.createCollection();
+  await CounsellingCycle.createIndexes();
   const now = new Date();
-  return Student.db.transaction(async session => {
+  return createContext().transaction(academicYear, async session => {
+    await requireUnopenedYear(academicYear, session);
     const result = await Student.bulkWrite(students.map(student => ({
       updateOne: {
         filter: { academicYear: student.academicYear, applicationNumber: student.applicationNumber },

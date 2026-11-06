@@ -9,3 +9,5 @@ export { default as Preference } from './Preference.model.js';
 export { default as Allocation } from './Allocation.model.js';
 export { default as RoundResult } from './RoundResult.model.js';
 export { default as AuditEvent } from './AuditEvent.model.js';
+export { default as CounsellingCycle } from './CounsellingCycle.model.js';
+export { default as SeatHolding } from './SeatHolding.model.js';

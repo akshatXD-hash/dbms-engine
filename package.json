@@ -9,6 +9,8 @@
     "test": "npm run test --workspace backend",
     "schema:check": "npm run schema:check --workspace backend",
     "db:init": "npm run db:init --workspace backend",
-    "seed:students": "npm run seed:students --workspace backend --"
+    "seed:students": "npm run seed:students --workspace backend --",
+    "test:integration": "npm run test:integration --workspace backend",
+    "seed:counselling": "npm run seed:counselling --workspace backend"
   }
 }

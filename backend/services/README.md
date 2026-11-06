@@ -1,3 +1,5 @@
-Phase 2 owns reference checks, preference locking/deadlines and transactional
-allocation, acceptance, release and upgrade. Phase 3 adds rank-ordered processing.
-Mongoose model validation alone is not a transaction or an authorization boundary.
+# DBMS services
+
+Import `dbms` from `index.js` after connecting and initializing MongoDB.
+See the [integration guide](../../docs/dbms-services.md) for inputs, outputs,
+transaction boundaries, rank coordination, authorization and errors.

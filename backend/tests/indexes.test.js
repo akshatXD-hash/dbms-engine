@@ -18,10 +18,8 @@ test('declares per-round preference, allocation and result idempotency boundarie
   }
 });
 test('declares only one held seat across rounds but permits released history', () => {
-  const [, settings] = uniqueIndex(models.Allocation, { student: 1, academicYear: 1 });
-  assert.deepEqual(settings.partialFilterExpression, {
-    status: { $in: ['ALLOTTED', 'ACCEPTED', 'UPGRADE_REQUESTED'] },
-  });
+  assert.ok(uniqueIndex(models.SeatHolding, { student: 1, academicYear: 1 }));
+  assert.ok(uniqueIndex(models.SeatHolding, { allocation: 1 }));
 });
 test('does not create a separate capacity pool for each round', () => {
   assert.ok(uniqueIndex(models.SeatMatrix, { academicYear: 1, branch: 1, category: 1 }));

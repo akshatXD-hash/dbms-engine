@@ -2,44 +2,36 @@
 
 ## Phase 1 — schema foundation (complete)
 
-Read all three inputs, reconcile inconsistencies, follow the Flexio tree and
-implement eleven JavaScript Mongoose models with indexes, field validation,
-cross-field validation, synthetic fixtures, offline tests and explicit database
-initialization tooling. Twenty focused commits capture this phase.
+All three source files were reviewed. The initial eleven models, fixtures,
+offline tests and synthetic student generator were implemented.
 
-## Phase 2 — database integration and transaction services
+## Phase 2 — E1 transaction services (implemented)
 
-Request a development MongoDB replica-set/Atlas URL when starting this phase.
-The user can place it in ignored `backend/.env`; it need not be pasted into chat.
-Initialize collections/indexes, then implement reference validation, rule freezing,
-preference lock/deadline enforcement, allocation, release, acceptance and atomic
-upgrade. Keep candidate rank ordering deterministic at the service boundary.
+Reference checks, configuration, preferences, rank-ordered allocation, acceptance,
+release, upgrade, round transitions, results, auditing and reconciliation are now
+implemented. CounsellingCycle and SeatHolding extend the schema to thirteen models.
+Atlas integration tests cover real transactions and three rounds. The engine uses
+the existing cluster; no local MongoDB download is required.
 
-Acceptance evidence must include real duplicate-key rejection, raw invalid
-seat-count rejection, missing/mismatched references, late/locked preference edits,
-last-seat contention, rollback after every write, duplicate job replay, no-seat
-outcome, retaining an old seat on failed upgrade and cross-round reconciliation.
-Use a disposable test database, not the user's real candidate data.
+The coordinator serializes mutations per academic year. Rank, eligibility and
+capacity freeze after opening. Reservation changes use new rule versions for later
+rounds. Performance targets remain unmeasured.
 
-## Phase 3 — allocation and worker orchestration
+## Phase 3 — E2 and E3 integration
 
-Implement E3's rank queue, preference traversal and configured quota resolver,
-then E2's bounded workers, rank-ordered decisions/commits, retries, timeouts and
-round recovery. Make three-round behavior the demonstration scenario. Measure
-fairness, 10,000-student throughput and 500-user contention before claiming the
-Gate 1 targets. Do not let workers award seats out of merit order.
+Integrate bounded workers, retries, cancellation, progress tracking and optimized
+merit/preference logic through `backend/services/index.js`. Preserve rank order and
+E1's authoritative checks. Measure 10,000-student and 500-user targets. The current
+selector and coordinator provide a correctness baseline.
 
-## Phase 4 — authenticated APIs and portals
+## Phase 4 — E4 authentication and portals
 
-Add password hashing, student/admin authentication, authorization, rate limiting,
-session expiry, catalogue/preferences/results APIs, administrator configuration
-and the React student/admin portals. Add controlled result publication and final
-allotment-letter download. Resolve payment and verification scope before building
-those workflows; Gate 1's payment requirements are still open.
+Implement login, role middleware, session expiry, rate limiting, HTTP routes,
+React dashboards and allotment letters. Construct actors from authenticated
+sessions. Resolve payment and certificate-verification scope before implementing them.
 
-## Phase 5 — resilience and handover
+## Phase 5 — operational handover
 
-Exercise crash/restart, stale caches, upgrades under contention, backups/restores,
-privacy controls, usability and full requirement traceability. Document measured
-limits and demonstrate with synthetic data. Official KEA rules, real admissions,
-rank generation and production-scale rollout remain outside the academic baseline.
+Exercise backup/restore, process restart, privacy controls and usability. Define
+monitoring and reconciliation procedures and complete requirements traceability.
+Official counselling rules, real admissions and rank generation remain out of scope.

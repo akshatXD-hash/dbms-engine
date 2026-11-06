@@ -1,8 +1,9 @@
 import { Schema } from 'mongoose';
 import { AUDIT_ACTIONS } from '../constants/domain.js';
-import { options, text, reference, state, compile } from './shared/schema.js';
+import { options, text, year, reference, state, compile } from './shared/schema.js';
 const schema = new Schema({
   action: state(AUDIT_ACTIONS),
+  academicYear: { ...year(), required: false },
   actorType: state(['Student', 'Admin', 'SYSTEM']),
   actor: { type: Schema.Types.ObjectId, refPath: 'actorType' },
   student: reference('Student', false), round: reference('Round', false),

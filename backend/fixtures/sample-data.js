@@ -6,6 +6,8 @@ export function sampleData() {
   const ids = Object.fromEntries(['admin', 'student', 'college', 'branch', 'ruleSet', 'round', 'seatMatrix', 'preference', 'allocation', 'roundResult', 'auditEvent'].map(key => [key, id()]));
   const academicYear = 2026;
   return {
+    CounsellingCycle: { academicYear, revision: 0 },
+    SeatHolding: { student: ids.student, academicYear, allocation: ids.allocation },
     Admin: { _id: ids.admin, name: 'Demo Admin', email: 'admin@example.test', passwordHash: fixtureHash },
     Student: {
       _id: ids.student, applicationNumber: 'DEMO0001', academicYear,

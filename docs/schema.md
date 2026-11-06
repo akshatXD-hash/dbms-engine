@@ -1,4 +1,4 @@
-# Phase 1 schema
+# CounselDesk schema
 
 All collections use ObjectId `_id`, `createdAt`, `updatedAt` and Mongoose `__v`.
 All top-level models reject unknown fields. Optimistic concurrency applies to
@@ -28,6 +28,8 @@ erDiagram
   ALLOCATION o|--o{ ROUND_RESULT : retained_or_awarded
   STUDENT o|--o{ AUDIT_EVENT : concerns
   ROUND o|--o{ AUDIT_EVENT : concerns
+  STUDENT ||--o| SEAT_HOLDING : holds
+  ALLOCATION ||--o| SEAT_HOLDING : current
 ```
 
 `CHOICE` is an embedded subdocument, not a collection. Its `_id` replaces the
@@ -38,7 +40,7 @@ another allocation or decrementing a seat again.
 ## Data dictionary
 
 Fields are required unless marked optional or defaulted. References identify
-records, not embedded copies. Reference existence is a phase 2 responsibility.
+records, not embedded copies. E1 services enforce reference existence and consistency.
 
 | Model / collection | Fields and meaning |
 | --- | --- |
@@ -52,7 +54,9 @@ records, not embedded copies. Reference existence is a phase 2 responsibility.
 | Preference / preferences | student, round, academicYear; choices default []; each choice contains college, branch, preferenceOrder and an ObjectId; locked defaults false; optional submittedAt/lockedAt, both required for locked lists |
 | Allocation / allocations | student, round, academicYear, seatMatrix, preference, preferenceOrder, rankSnapshot; status defaults ALLOTTED; allocatedAt defaults now; optional previousAllocation for successful upgrades |
 | RoundResult / round_results | student, round, academicYear, outcome (ALLOTTED/UNALLOCATED/FAILED), reason; allocation required exactly for ALLOTTED; processedAt defaults now |
-| AuditEvent / audit_events | action, actorType (Student/Admin/SYSTEM), requestId, summary; actor id required for human actors and forbidden for SYSTEM; optional student/round/allocation; occurredAt defaults now |
+| AuditEvent / audit_events | action, actorType (Student/Admin/SYSTEM), requestId, summary; actor id required for human actors and forbidden for SYSTEM; optional academicYear/student/round/allocation; occurredAt defaults now |
+| SeatHolding / seat_holdings | student, academicYear, allocation; one current holding per student/year |
+| CounsellingCycle / counselling_cycles | academicYear; revision defaults 0 and serializes year mutations |
 
 Names and codes are trimmed. Codes are uppercase, at most 40 characters, and
 contain letters, digits, hyphens or underscores. Category values come from rule
@@ -72,18 +76,21 @@ precedes rank availability will need a separate application intake design.
 | rounds | year + roundNumber | year + status |
 | seat_matrices | year + branch + category | year + college + category |
 | preferences | student + round | round + locked + student |
-| allocations | student + round; student + year **only for holding statuses** | seatMatrix + status; round + status |
+| allocations | student + round | student + year + status; seatMatrix + status; round + status |
+| seat_holdings | student + year; allocation | — |
+| counselling_cycles | year | — |
 | round_results | student + round | round + outcome |
 | audit_events | none (one request can produce several events) | student + occurredAt; round + occurredAt; requestId |
 
 Holding statuses are ALLOTTED, ACCEPTED and UPGRADE_REQUESTED. RELEASED, UPGRADED
-and CANCELLED preserve history without holding a seat. The service must transition
-the old record out of a holding state before inserting its replacement, in the
-same transaction. Rollback must restore the old record if any subsequent write
-fails. The unique index alone cannot maintain seat counts.
+and CANCELLED preserve history. SeatHolding identifies the single current seat.
+An upgrade updates this pointer in place while creating a new allocation and
+marking the old allocation UPGRADED in one transaction. Initialization backfills
+holdings and retires the former partial unique Allocation index. Services update
+both the holding and pool counts atomically.
 
 A seat pool is shared by all rounds in a year. Do not reset availableSeats at the
-start of a new round. The planned invariant is:
+start of a new round. The enforced service invariant is:
 
 ```text
 availableSeats = totalSeats - count(holding allocations for that seat pool)
@@ -91,9 +98,9 @@ availableSeats = totalSeats - count(holding allocations for that seat pool)
 
 Mongoose validates capacity on document validation; `db:init` also installs a
 MongoDB validator for integral nonnegative counts and `availableSeats <= totalSeats`.
-The equality with allocations requires transactions and reconciliation in phase 2.
+E1 transactions preserve equality with allocations; reconciliation reports drift.
 
-## Required service checks in phase 2
+## Service checks
 
 Mongoose `ref` enables population, not foreign keys. Before any mutation, services
 must check all references in the same session as the write:
@@ -123,7 +130,7 @@ Do not rely on `updateOne`, `findOneAndUpdate`, `bulkWrite`, raw collection writ
 or `runValidators: true` to execute these cross-document rules. Query validators
 and document hooks differ. No generic public write API is exposed in this phase.
 
-## MongoDB transaction contract for the next phase
+## MongoDB transaction contract
 
 Use a replica-set session and a retryable transaction. Re-read the authoritative
 pool and conditionally decrement where `availableSeats > 0`; check matched counts.
@@ -132,15 +139,15 @@ Retries must repeat the whole transaction safely, with no external side effects
 inside retryable callbacks. Database uniqueness provides a final duplicate barrier,
 while the service must return the prior result for a replayed job.
 
-The coordinator must make decisions in rank order or re-evaluate speculative
-decisions before commit. A last-seat guard without rank sequencing can still award
-the seat to the wrong candidate. Fixed ordering of involved pool IDs and retry
-handling belong to the concurrency phase; this schema provides no SQL row locks.
+E1 rejects out-of-order jobs and rechecks proposed seats before committing.
+Pool updates use fixed ObjectId order. CounsellingCycle serializes transactions
+per academic year across processes. E2 owns worker scheduling and bounded job
+retries. MongoDB transaction conflicts replace the documents' SQL row-lock model.
 
 ## Validation status
 
-Offline tests exercise document validation, boundary cases, secret serialization,
-configuration and index declarations. They do not prove server-side uniqueness,
-the collection validator, reference integrity, transaction rollback, locking,
-rank fairness or load targets. Run those against a development replica set in the
-next phase before exposing writes.
+Offline tests cover models, configuration, seeds and helpers. Atlas integration
+tests verify database uniqueness/validation, reference and ownership checks,
+rollback after injected failures, repeated requests, rank ordering, release,
+upgrade and retention across three rounds. The 10,000-student/500-user load targets
+have not been measured. See [the service guide](dbms-services.md) for usage.

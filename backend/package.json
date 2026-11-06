@@ -7,7 +7,9 @@
     "test": "node --test tests/*.test.js",
     "schema:check": "node scripts/check-schema.js",
     "db:init": "node --env-file=.env scripts/init-db.js",
-    "seed:students": "node scripts/seed-students.js"
+    "seed:students": "node scripts/seed-students.js",
+    "test:integration": "node --env-file=.env --test tests/integration/*.test.js",
+    "seed:counselling": "node --env-file=.env scripts/seed-counselling.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
